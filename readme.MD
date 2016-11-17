@@ -1,0 +1,1 @@
+This project is a standalone HTML page that can recover the Unicode code points for text and output text that matches specific Unicode code points.

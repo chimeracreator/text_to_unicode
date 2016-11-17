@@ -1,0 +1,72 @@
+<html>
+	<head>
+		<script>
+			function read_text() {
+				var input_text = document.getElementById('input_text').value;
+				var output_area = document.getElementById('hex_output');
+
+				output_area.innerHTML = '';
+				var code;
+				
+				for(var i = 0; i < input_text.length; i++) {
+					code = input_text.charCodeAt(i);
+					if(code >= 0xD800 && code <= 0xDBFF) {
+						if(i + 1 < input_text.length) {
+							i += 1;
+							code = (code - 0xD800) * 0x400 + 0x10000;
+							code += input_text.charCodeAt(i) - 0xDC00;
+						}
+					}
+					output_area.innerHTML += code.toString(16) + ' ';
+				}
+			}
+			
+			function write_text() {
+				var input_text = document.getElementById('input_hex').value.trim();
+				var output_area = document.getElementById('character_output');
+				input_split = input_text.split(/\s+/);
+
+				output_area.innerHTML = '';
+				var code;
+				var output_string;
+				
+				for(var i = 0; i < input_split.length; i++) {
+					code = parseInt('0x' + input_split[i]);
+					if(code >= 0x10000 && code <= 0x10FFFF) {
+						code -= 0x10000;
+						output_string = String.fromCharCode((((0xffc00) & code) >> 10) + 0xd800)
+						output_string += String.fromCharCode((0x3ff & code) + 0xDC00);
+					}
+					else if((code >= 0 && code <= 0xD7FF) || (code >= 0xE000 && code <= 0xFFFF))
+						output_string = String.fromCharCode(code);
+					else {
+						alert('Invalid Code Point');
+						output_string = '';
+					}
+						
+					output_area.innerHTML += output_string;
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div>
+			<h2>Copy and Paste Text to get Unicode Code Points</h2>
+			<textarea id='input_text'></textarea>
+			<button onclick='read_text()'>Read Text</button>
+			<div>
+				Output: <span id="hex_output" />
+			</div>
+		</div>
+		
+		<div>
+			<h2>Convert Unicode Code Points to Characters</h2>
+			<h3>Separate code points using spaces or new lines</h3>
+			<textarea id='input_hex'></textarea>
+			<button onclick='write_text()'>Write Text</button>
+			<div>
+				Output: <span id="character_output" />
+			</div>
+		</div>
+	</body>
+</html>
